@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Projet</string>
+    <string name="btn_server">Lancer le server</string>
+    <string name="btn_client">Lancer le client</string>
+    <string name="btn_send_data">Envoyer hello</string>
+
+</resources>
