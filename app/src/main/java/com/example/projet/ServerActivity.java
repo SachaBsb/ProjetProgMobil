@@ -47,19 +47,25 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
                 return;
             }
 
-            bss = bluetoothAdapter.listenUsingRfcommWithServiceRecord("MonServeur", uuid);
+            bss = bluetoothAdapter.listenUsingRfcommWithServiceRecord("MonServeur", get_uuid());
 
-            while (true) {
-
-                bs = bss.accept();
-                if (bs != null) {
-                    // A connection was accepted. Perform work associated with
-                    // the connection in a separate thread.
-                    // manageMyConnectedSocket(bs);
-                    bss.close();
-                    break;
+            //Thread pour la connection bluetooth
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        bs = bss.accept();
+                        if (bs != null) {
+                            // A connection was accepted. Perform work associated with
+                            // the connection in a separate thread.
+                            // manageMyConnectedSocket(bs);
+                            bss.close();
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            }
+            });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

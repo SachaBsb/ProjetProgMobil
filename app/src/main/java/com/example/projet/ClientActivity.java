@@ -66,18 +66,14 @@ public class ClientActivity extends AppCompatActivity {
         @SuppressLint("MissingPermission")
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         try {
-            while (true) {
-                if (pairedDevices.size() > 0) { // Get names and addresses of paired devices
-                    for (BluetoothDevice device : pairedDevices) {
-                        // String deviceName = device.getName();
-                        String remoteDeviceMacAddress = device.getAddress(); // Mac Adress
-                        if (remoteDeviceMacAddress.equals(targetedDeviceMacAdress)) {
-                            BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(remoteDeviceMacAddress);
-                            bs = remoteDevice.createRfcommSocketToServiceRecord(uuid);
-                            bs.connect();
-                            return;
-                        }
-                    }
+            for (BluetoothDevice device : pairedDevices) {
+                // String deviceName = device.getName();
+                String remoteDeviceMacAddress = device.getAddress(); // Mac Adress
+                if (remoteDeviceMacAddress.equals(targetedDeviceMacAdress)) {
+                    BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(remoteDeviceMacAddress);
+                    bs = remoteDevice.createRfcommSocketToServiceRecord(uuid);
+                    bs.connect();
+                    return;
                 }
             }
         } catch(IOException e){
