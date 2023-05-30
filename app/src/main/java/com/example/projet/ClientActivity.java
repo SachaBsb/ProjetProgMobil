@@ -52,7 +52,7 @@ public class ClientActivity extends AppCompatActivity {
             return;
         }
 
-        BluetoothSocket bs = connectToServer(bluetoothAdapter);
+        connectToServer(bluetoothAdapter);
         try {
             transferData(bs);
         } catch (IOException e) {
@@ -62,7 +62,7 @@ public class ClientActivity extends AppCompatActivity {
     }
 
     @SuppressLint("MissingPermission")
-    public BluetoothSocket connectToServer(BluetoothAdapter bluetoothAdapter) {
+    public void connectToServer(BluetoothAdapter bluetoothAdapter) {
         @SuppressLint("MissingPermission")
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         try {
@@ -71,10 +71,11 @@ public class ClientActivity extends AppCompatActivity {
                     for (BluetoothDevice device : pairedDevices) {
                         // String deviceName = device.getName();
                         String remoteDeviceMacAddress = device.getAddress(); // Mac Adress
-                        if (remoteDeviceMacAddress == targetedDeviceMacAdress) {
+                        if (remoteDeviceMacAddress.equals(targetedDeviceMacAdress)) {
                             BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(remoteDeviceMacAddress);
                             bs = remoteDevice.createRfcommSocketToServiceRecord(uuid);
-                            return bs;
+                            bs.connect();
+                            return;
                         }
                     }
                 }
@@ -82,50 +83,38 @@ public class ClientActivity extends AppCompatActivity {
         } catch(IOException e){
             throw new RuntimeException(e);
         }
-
         // boolean discovering = bluetoothAdapter.startDiscovery();
-
     }
 
     /*Reception de Hello World*/
     public void transferData(BluetoothSocket bs) throws IOException {
-        // Créez une instance de MyBluetoothService
+        // Instance of MyBluetoothService
         MyBluetoothService bluetoothService = new MyBluetoothService();
-
-        // Établissez une connexion Bluetooth entre le client et le serveur
+        // Connection client/server
         BluetoothSocket socket = get_bs();
-
         // Obtenez une référence vers ConnectedThread pour la connexion Bluetooth
         MyBluetoothService.ConnectedThread connectedThread = bluetoothService.new ConnectedThread(socket);
-
-        // Commencez l'exécution du thread ConnectedThread
+        // Launch thread
         connectedThread.start();
-
-        // Créez un Handler pour recevoir les messages du thread ConnectedThread
+        // Handler to receive messages from thread
         Handler handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
-                    case MyBluetoothService.MessageConstants.MESSAGE_READ:
-                        // Le message a été recue
-                    byte[] buffer = (byte[]) msg.obj;
-                    int numBytes = msg.arg1;
-                    String receivedMessage = new String(buffer, 0, numBytes);
-                    final TextView data_received = (TextView) findViewById(R.id.data_received);
-                    data_received.setText(receivedMessage);
-                    break;
+                    case MyBluetoothService.MessageConstants.MESSAGE_READ: // Le message a été recue
+                        byte[] buffer = (byte[]) msg.obj;
+                        int numBytes = msg.arg1;
+                        String receivedMessage = new String(buffer, 0, numBytes);
+                        final TextView data_received = (TextView) findViewById(R.id.data_received);
+                        data_received.setText(receivedMessage);
+                        break;
                     /*
-                    case MyBluetoothService.MessageConstants.MESSAGE_WRITE:
-                    // Le message a été envoyé
-                    // Faites quelque chose si nécessaire
-                    break;
+                    case MyBluetoothService.MessageConstants.MESSAGE_WRITE: // Le message a été envoyé
+                        break;
                     */
-                    case MyBluetoothService.MessageConstants.MESSAGE_TOAST:
-                    // Une erreur s'est produite lors de l'envoi du message
-                    // Récupérez le message d'erreur
-                    String error = msg.getData().getString("toast");
-                    // Faites quelque chose avec le message d'erreur
-                    break;
+                    case MyBluetoothService.MessageConstants.MESSAGE_TOAST: // Une erreur lors de l'envoi du message
+                        String error = msg.getData().getString("toast");
+                        break;
                 }
             }
         };

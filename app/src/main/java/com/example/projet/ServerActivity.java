@@ -69,9 +69,9 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_send_data:
-                // On cree une instance de MyBluetoothService
+                // Instance of MyBluetoothService
                 MyBluetoothService bluetoothService = new MyBluetoothService();
-                // connection client server
+                // Connection client/server
                 BluetoothSocket socket = get_bs();
                 // get connectedThread ref for bluetooth connection
                 MyBluetoothService.ConnectedThread connectedThread = bluetoothService.new ConnectedThread(socket);
@@ -80,7 +80,6 @@ public class ServerActivity extends AppCompatActivity implements View.OnClickLis
                 // create and send Hello World
                 String message = "Hello World";
                 byte[] messageBytes = message.getBytes();
-                // Envoyez le message au client via Bluetooth
                 connectedThread.write(messageBytes);
         }
     }
